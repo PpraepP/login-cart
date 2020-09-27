@@ -5,17 +5,11 @@ import Home from '../views/Home.vue';
 
 Vue.use(VueRouter);
 
-const status = localStorage.getItem('status');
-const xx = store.getters.storeCart;
+const storeValue = store.getters.storeCart;
 const ifNotAuthenticated = (to, from, next) => {
-  console.log('status :', status);
+  const status = localStorage.getItem('status');
+  console.log('status', status);
   if (!status) { next('/login'); }
-  next();
-};
-
-const ifStoreEmpty = (to, from, next) => {
-  if (!status) next('/login');
-  if (xx.length === 0) next('/');
   next();
 };
 
@@ -37,7 +31,15 @@ export default new VueRouter({
       path: '/product',
       name: 'product',
       component: () => import('../views/Product-summary.vue'),
-      beforeEnter: ifStoreEmpty,
+      beforeEnter(to, from, next) {
+        const status = localStorage.getItem('status');
+        if (status) {
+          if (storeValue.length === 0) next('/');
+          else next();
+        } else {
+          next('/login');
+        }
+      },
     },
     {
       path: '*',
